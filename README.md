@@ -45,24 +45,28 @@ de projet et tenez-vous-y.
 
 ## Comment on travaille
 
-Vous construisez **une seule application**, qui grandit au fil des séances. Vous
-n'écrivez que dans le fichier `serveur` de votre voie, là où sont les `TODO`.
+Vous construisez **une seule application**, qui grandit au fil des séances. Elle
+est découpée en **un fichier par séance** : vous n'ouvrez que celui du jour.
 
-| Séance | Travail | Où |
+| Séance | Travail | Fichier |
 | --- | --- | --- |
 | 4 | installer son poste et relever son débit | `tp/00_setup/` |
 | 5 | améliorer un prompt, mesure à l'appui | `tp/05_prompt/` |
-| 9 | la route « résumer », TODO 1 à 5 | `app/` |
-| 10 | l'assistant avec appel d'outil, TODO 6 à 8 | `app/` |
+| 9 | la route « résumer », TODO 1 à 5 | `app/<voie>/s09_resumer` |
+| 10 | l'assistant avec appel d'outil, TODO 6 à 8 | `app/<voie>/s10_assistant` |
 | 11 | comparer des modèles au banc d'essai | `tp/11_banc/` |
-| 13 | la recherche documentaire (RAG), TODO 9 à 12 | `app/` |
+| 13 | l'index de recherche, TODO 9 à 11 | `app/<voie>/s13_index` |
+| 13 | le pipeline RAG, TODO 12 | `app/<voie>/s13_documents` |
+
+Chaque fichier de séance commence par son objectif et la commande qui le
+vérifie. Tant qu'un TODO n'est pas écrit, sa route répond « à écrire ».
 
 Trois règles :
 
 1. **Ne modifiez pas `app/front/`.** Le front est commun à toute la promotion ; le
    modifier est hors sujet.
-2. **Ne modifiez pas les fichiers marqués FOURNI** (`modele`, `transport`,
-   `donnees`). Votre travail est dans `serveur`.
+2. **Ne modifiez ni `main` ni le dossier `fourni/`.** Votre travail est dans les
+   fichiers de séance.
 3. **Le navigateur ne parle jamais au modèle.** Il parle à votre serveur, qui
    parle au modèle.
 
@@ -71,13 +75,16 @@ Trois règles :
 Deux terminaux :
 
 ```bash
-make app            # terminal 1 : votre serveur (ou : make app-node)
-make conformite     # terminal 2 : la suite de tests
+make app                     # terminal 1 : votre serveur (ou : make app-node)
+make conformite SEANCE=9     # terminal 2 : les tests de la séance du jour
 ```
 
-Les tests des routes que vous n'avez pas encore écrites sont ignorés
-automatiquement : lancez la suite dès la séance 9 et regardez-la passer au vert
-au fil du module. C'est **exactement** la commande qui sert à noter le CC2.
+`SEANCE=9`, `10` ou `13` ne lance que les tests de cette séance, et **exige**
+qu'elle soit écrite : un TODO oublié apparaît en rouge.
+
+Sans `SEANCE`, `make conformite` lance tout et ignore les routes pas encore
+écrites : vous voyez l'application passer au vert au fil du module. Pour le
+CC2, toutes les routes sont exigées.
 
 ## Organisation du dépôt
 

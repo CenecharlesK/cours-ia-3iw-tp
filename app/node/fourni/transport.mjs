@@ -1,9 +1,9 @@
 // Plomberie HTTP. FOURNI : vous n'avez pas a modifier ce fichier.
 //
 // Formatage SSE, traduction des erreurs, service du front, routage minimal.
-// Aucune dependance npm : tout vient de Node. Votre travail est dans serveur.mjs.
+// Aucune dependance npm : tout vient de Node. Votre travail est dans sNN_*.mjs.
 //
-// Jumeau exact de app/python/transport.py.
+// Jumeau exact de app/python/fourni/transport.py.
 
 import { createReadStream } from "node:fs";
 import { stat } from "node:fs/promises";
@@ -13,7 +13,8 @@ import { fileURLToPath } from "node:url";
 import { ModeleIndisponible } from "./modele.mjs";
 
 const ICI = path.dirname(fileURLToPath(import.meta.url));
-const FRONT = path.resolve(ICI, "..", "front");
+// app/node/fourni/transport.mjs -> app/front
+const FRONT = path.resolve(ICI, "..", "..", "front");
 
 const TYPES = {
   ".html": "text/html; charset=utf-8",
@@ -24,6 +25,12 @@ const TYPES = {
 };
 
 export class RequeteInvalide extends Error {}
+
+/**
+ * Un TODO pas encore ecrit. Devient un 501 : "route prevue mais pas
+ * implementee". La suite de conformite ignore alors les tests de cette route.
+ */
+export class AEcrire extends Error {}
 
 /** Formate un evenement SSE. Les deux retours a la ligne sont obligatoires. */
 export function sse(objet) {
@@ -144,6 +151,9 @@ export function creerServeur(routes) {
     } catch (e) {
       if (e instanceof RequeteInvalide) {
         return envoyerJson(res, 400, { erreur: e.message });
+      }
+      if (e instanceof AEcrire) {
+        return envoyerJson(res, 501, { erreur: `a ecrire : ${e.message}` });
       }
       if (e instanceof ModeleIndisponible) {
         console.error(`[modele] ${e.message}`);

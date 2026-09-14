@@ -9,7 +9,7 @@ CHEMIN = "/api/documents"
 
 @pytest.fixture(autouse=True)
 def _route_presente():
-    exiger_route(CHEMIN)
+    exiger_route(CHEMIN, {"question": "Comment demander un remboursement ?"})
 
 
 def test_la_route_repond_en_sse():

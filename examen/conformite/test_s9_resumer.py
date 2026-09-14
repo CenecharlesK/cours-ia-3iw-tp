@@ -3,9 +3,14 @@
 Chaque test correspond a une ligne de app/CONTRAT.md.
 """
 import pytest
-from conftest import appeler, appeler_sse
+from conftest import appeler, appeler_sse, exiger_route
 
 pytestmark = pytest.mark.s9
+
+
+@pytest.fixture(autouse=True)
+def _route_presente():
+    exiger_route("/api/resumer", {"texte": "Mon colis n'est jamais arrive."})
 
 TEXTE = (
     "Bonjour, j'ai commande un casque le 3 mars et je n'ai toujours rien recu. "

@@ -7,7 +7,8 @@
 import json
 import pathlib
 
-DONNEES = pathlib.Path(__file__).resolve().parents[1] / "donnees"
+# app/python/fourni/donnees.py -> app/donnees
+DONNEES = pathlib.Path(__file__).resolve().parents[2] / "donnees"
 _BASE = json.loads((DONNEES / "commandes.json").read_text(encoding="utf-8"))
 
 

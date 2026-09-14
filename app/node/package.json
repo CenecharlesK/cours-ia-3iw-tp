@@ -4,9 +4,11 @@
   "private": true,
   "type": "module",
   "description": "Squelette de la voie JavaScript. Aucune dependance : Node 20+ suffit.",
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
-    "start": "node serveur.mjs",
-    "dev": "node --watch serveur.mjs"
+    "start": "node main.mjs",
+    "dev": "node --watch main.mjs"
   }
 }

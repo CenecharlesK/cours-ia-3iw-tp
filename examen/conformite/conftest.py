@@ -6,6 +6,11 @@ de l'etudiant soit en FastAPI, en Express, en Symfony ou en Go.
 Usage :
     BASE_URL=http://localhost:3000 pytest examen/conformite
 
+Une route pas encore ecrite (reponse 404, 405 ou 501) voit ses tests ignores :
+on peut lancer la suite des la seance 9 et la voir passer au vert au fil du
+module. Avec EXIGER=1, une route non ecrite fait au contraire ECHOUER ses tests :
+c'est le mode de correction du CC2, et celui de `make conformite SEANCE=n`.
+
 Le contrat teste est decrit dans app/CONTRAT.md, qui fait foi.
 """
 import json
@@ -16,6 +21,7 @@ import pytest
 
 BASE_URL = os.environ.get("BASE_URL", "http://localhost:3000").rstrip("/")
 DELAI = float(os.environ.get("DELAI", "60"))
+EXIGER = os.environ.get("EXIGER") == "1"
 
 
 def pytest_configure(config):
@@ -92,11 +98,33 @@ def appeler(chemin, charge):
         return client.post(f"{BASE_URL}{chemin}", json=charge)
 
 
-def exiger_route(chemin):
-    """Passe le test si la route n'existe pas encore : elle releve d'une seance ulterieure.
+_SONDES = {}
 
-    404 quand rien ne repond, 405 quand un service de fichiers statiques occupe
-    la racine et refuse le POST : les deux signifient "pas encore ecrite".
+
+def sonder(chemin, charge_valide):
+    """Code HTTP de la route pour une requete VALIDE, lu des les en-tetes.
+
+    La requete doit etre valide : une route qui valide son entree avant
+    d'atteindre ses TODO repondrait 400 a une requete vide, et passerait a tort
+    pour ecrite. Le resultat est garde pour toute la session.
     """
-    if appeler(chemin, {}).status_code in (404, 405):
-        pytest.skip(f"{chemin} n'est pas encore implementee")
+    if chemin not in _SONDES:
+        with httpx.Client(timeout=DELAI) as client:
+            with client.stream("POST", f"{BASE_URL}{chemin}", json=charge_valide) as r:
+                _SONDES[chemin] = r.status_code
+    return _SONDES[chemin]
+
+
+def exiger_route(chemin, charge_valide):
+    """Ignore les tests d'une route pas encore ecrite, ou les fait echouer si EXIGER=1.
+
+    404 : rien ne repond. 405 : un service de fichiers statiques refuse le POST.
+    501 : la route existe mais un TODO n'est pas ecrit. Les trois signifient
+    "pas encore ecrite".
+    """
+    code = sonder(chemin, charge_valide)
+    if code in (404, 405, 501):
+        raison = f"{chemin} : a ecrire (HTTP {code})"
+        if EXIGER:
+            pytest.fail(f"{raison}, alors que cette route est exigee")
+        pytest.skip(raison)

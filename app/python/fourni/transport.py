@@ -1,7 +1,7 @@
 """Plomberie HTTP. FOURNI : vous n'avez pas a modifier ce fichier.
 
-Tout ce qui suit est du transport : formatage SSE, traduction des erreurs,
-service du front. Votre travail est dans serveur.py.
+Tout ce qui suit est du transport : formatage SSE, lecture du corps, traduction
+des erreurs, service du front. Votre travail est dans les fichiers sNN_*.py.
 """
 import json
 import pathlib
@@ -10,13 +10,26 @@ import time
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
-from modele import ModeleIndisponible
 
-FRONT = pathlib.Path(__file__).resolve().parents[1] / "front"
+from .modele import ModeleIndisponible
+
+# app/python/fourni/transport.py -> app/front
+FRONT = pathlib.Path(__file__).resolve().parents[2] / "front"
 
 
 class RequeteInvalide(ValueError):
     """Entree du client refusee. Devient un 400 avec un corps JSON."""
+
+
+async def lire_corps(requete):
+    """Decode le corps JSON de la requete. Leve RequeteInvalide s'il est illisible."""
+    try:
+        corps = await requete.json()
+    except ValueError as e:
+        raise RequeteInvalide("corps JSON illisible") from e
+    if not isinstance(corps, dict):
+        raise RequeteInvalide("corps JSON invalide")
+    return corps
 
 
 def sse(objet):
@@ -76,6 +89,17 @@ def creer_application():
     @app.exception_handler(RequeteInvalide)
     async def _invalide(_requete: Request, exc: RequeteInvalide):
         return JSONResponse({"erreur": str(exc)}, status_code=400)
+
+    @app.exception_handler(NotImplementedError)
+    async def _a_ecrire(_requete: Request, exc: NotImplementedError):
+        # Un TODO pas encore ecrit. 501 dit "route prevue mais pas implementee" :
+        # la suite de conformite ignore alors les tests de cette route.
+        return JSONResponse({"erreur": f"a ecrire : {exc}"}, status_code=501)
+
+    @app.exception_handler(ModeleIndisponible)
+    async def _modele_indisponible(_requete: Request, exc: ModeleIndisponible):
+        print(f"[modele] {exc}")
+        return JSONResponse({"erreur": "modele indisponible"}, status_code=503)
 
     @app.exception_handler(Exception)
     async def _imprevu(_requete: Request, exc: Exception):

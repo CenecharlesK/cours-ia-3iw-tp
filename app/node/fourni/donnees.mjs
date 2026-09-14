@@ -4,14 +4,15 @@
 // - delaiTransporteur : un second outil, pour ceux qui veulent enchainer
 // - chargerDocuments  : le corpus de la seance 13
 //
-// Jumeau exact de app/python/donnees.py.
+// Jumeau exact de app/python/fourni/donnees.py.
 
 import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ICI = path.dirname(fileURLToPath(import.meta.url));
-const DONNEES = path.resolve(ICI, "..", "donnees");
+// app/node/fourni/donnees.mjs -> app/donnees
+const DONNEES = path.resolve(ICI, "..", "..", "donnees");
 const BASE = JSON.parse(readFileSync(path.join(DONNEES, "commandes.json"), "utf8"));
 
 /**

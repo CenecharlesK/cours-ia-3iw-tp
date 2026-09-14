@@ -4,7 +4,7 @@
 // fonctionnerait face a un fournisseur cloud : seules OLLAMA_BASE_URL et
 // l'authentification changeraient.
 //
-// Jumeau exact de app/python/modele.py.
+// Jumeau exact de app/python/fourni/modele.py.
 
 const BASE = (process.env.OLLAMA_BASE_URL || "http://localhost:11434").replace(/\/$/, "");
 const MODELE = process.env.MODEL_BASE || "qwen2.5:3b";

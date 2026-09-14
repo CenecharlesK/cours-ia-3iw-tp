@@ -12,7 +12,7 @@ CHEMIN = "/api/assistant"
 
 @pytest.fixture(autouse=True)
 def _route_presente():
-    exiger_route(CHEMIN)
+    exiger_route(CHEMIN, {"question": "Ou en est la commande CMD-2024-118 ?"})
 
 
 def test_la_route_repond_en_sse():

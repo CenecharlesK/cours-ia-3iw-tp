@@ -104,19 +104,29 @@ data: {"sources":[{"titre":"Remboursements","score":0.81}]}
 
 ```bash
 # depuis la racine du depot, votre serveur devant tourner sur le port 3000
-BASE_URL=http://localhost:3000 pytest examen/conformite
+make conformite SEANCE=9     # une seance, qui doit etre ecrite
+make conformite              # tout ; les routes pas encore ecrites sont ignorees
 ```
 
 La suite est écrite en Python et n'interroge que le HTTP. Elle donne le même
 verdict que votre serveur soit en FastAPI, en Express, en Symfony ou en Go.
+
+Une route prévue mais pas encore écrite doit répondre **`501`** : la suite
+ignore alors ses tests, ce qui permet de la lancer dès la séance 9. Les deux
+squelettes fournis le font déjà. Pour la correction du CC2, toutes les routes
+sont exigées : une route en `501` y compte comme un échec.
 
 ## Voies fournies
 
 | Dossier | Pile | État |
 | --- | --- | --- |
 | `app/front/` | HTML et JavaScript statiques | **fourni, gelé, ne pas modifier** |
-| `app/python/` | FastAPI | squelette, transport écrit, TODO à remplir |
-| `app/node/` | Express | squelette, transport écrit, TODO à remplir |
+| `app/python/` | FastAPI | un fichier par séance, TODO à remplir |
+| `app/node/` | Node, sans dépendance | un fichier par séance, TODO à remplir |
+
+Dans les deux voies, les fichiers de séance sont identiques d'une langue à
+l'autre : `s09_resumer`, `s10_assistant`, `s13_index`, `s13_documents`. Le point
+d'entrée `main` et le dossier `fourni/` ne se modifient pas.
 
 Déclarez votre voie au début du projet et tenez-vous-y. Une autre pile est
 acceptée si vous l'assumez : le contrat est le même, mais le squelette est à

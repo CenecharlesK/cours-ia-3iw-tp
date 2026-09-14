@@ -9,9 +9,14 @@ le pointant vers un port ou rien n'ecoute, puis relancez la suite ainsi :
 import os
 
 import pytest
-from conftest import appeler
+from conftest import appeler, exiger_route
 
 pytestmark = pytest.mark.s9
+
+
+@pytest.fixture(autouse=True)
+def _route_presente():
+    exiger_route("/api/resumer", {"texte": "Mon colis n'est jamais arrive."})
 
 TEXTE = "Un texte quelconque, suffisamment long pour etre valide."
 

@@ -129,10 +129,13 @@ liberer-port:  ## Libere le port de l'app (3000 par defaut) si un ancien serveur
 	fi
 
 app: liberer-port  ## Lance VOTRE serveur, voie Python (rechargement automatique)
-	$(UV) run uvicorn --app-dir app/python serveur:app --reload --port $(PORT)
+	$(UV) run uvicorn --app-dir app/python main:app --reload --port $(PORT)
 
 app-node: liberer-port  ## Lance VOTRE serveur, voie JavaScript (rechargement automatique)
-	PORT=$(PORT) node --watch app/node/serveur.mjs
+	PORT=$(PORT) node --watch app/node/main.mjs
 
-conformite:  ## Verifie votre serveur, lance dans un autre terminal, contre le contrat
-	@BASE_URL=$(BASE_URL) $(UV) run pytest examen/conformite
+# SEANCE=n ne lance que les tests de cette seance, et exige que la route soit
+# ecrite : un TODO oublie fait echouer au lieu d'etre ignore.
+conformite:  ## Verifie votre serveur deja lance ; SEANCE=9, 10 ou 13 pour cibler une seance
+	@BASE_URL=$(BASE_URL) $(if $(SEANCE),EXIGER=1,EXIGER=$(EXIGER)) \
+		$(UV) run pytest examen/conformite $(if $(SEANCE),-m s$(SEANCE))
