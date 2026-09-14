@@ -101,5 +101,5 @@ CC2, toutes les routes sont exigées.
 | Épreuve | Format | Poids |
 | --- | --- | --- |
 | CC1 | écrit de 45 min, fin de séance 7 | 25 % |
-| CC2 | l'application, en binôme, rendu Git et démonstration de 5 min | 35 % |
+| CC2 | l'application, individuelle, rendu Git et démonstration de 5 min | 35 % |
 | Partiel | écrit de 1 h 30 | 40 % |
