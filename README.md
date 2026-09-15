@@ -63,12 +63,15 @@ vérifie. Tant qu'un TODO n'est pas écrit, sa route répond « à écrire ».
 
 Trois règles :
 
-1. **Ne modifiez pas `app/front/`.** Le front est commun à toute la promotion ; le
-   modifier est hors sujet.
+1. **Le front est libre.** Gardez la page fournie dans `app/front/`, modifiez-la,
+   ou écrivez la vôtre : React, PHP, Streamlit (exemple dans `app/front_streamlit/`,
+   lancé par `make front-streamlit`). Voir la section « Le front est libre » du
+   [contrat](app/CONTRAT.md).
 2. **Ne modifiez ni `main` ni le dossier `fourni/`.** Votre travail est dans les
    fichiers de séance.
-3. **Le navigateur ne parle jamais au modèle.** Il parle à votre serveur, qui
-   parle au modèle.
+3. **Le front ne parle jamais au modèle.** Il parle à votre serveur, qui parle
+   au modèle. C'est vrai aussi d'un front Streamlit, même s'il tourne sur un
+   serveur : la suite de conformité le vérifie.
 
 ## Vérifier son travail
 
