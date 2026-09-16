@@ -3,144 +3,601 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Assistant support : application fil rouge</title>
+<title>AutoAssist — Centre de diagnostic</title>
+
 <style>
   :root {
-    --navy: #16284D; --accent: #0EA5E9; --ink: #1F2A37; --gray: #5B6679;
-    --border: #D7DEEA; --soft: #F4F7FC; --card: #EAF1FB; --rouge: #C0504D;
-    --vert: #3FA45B;
+    --bg: #090b0f;
+    --panel: #11151b;
+    --panel-2: #171c23;
+    --panel-3: #0d1015;
+    --red: #e10600;
+    --red-light: #ff3b30;
+    --white: #f5f5f5;
+    --muted: #89919e;
+    --border: #2a3039;
+    --green: #35d07f;
+    --yellow: #f2c94c;
   }
+
   * { box-sizing: border-box; }
+
   body {
-    margin: 0; font: 15px/1.5 -apple-system, "Segoe UI", Roboto, sans-serif;
-    color: var(--ink); background: var(--soft);
+    margin: 0;
+    min-height: 100vh;
+    color: var(--white);
+    background:
+      radial-gradient(circle at 80% 0%, rgba(225, 6, 0, .14), transparent 32%),
+      linear-gradient(135deg, #080a0d, #0d1117 55%, #080a0d);
+    font: 15px/1.5 Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: .08;
+    background-image:
+      linear-gradient(45deg, #fff 1px, transparent 1px),
+      linear-gradient(-45deg, #fff 1px, transparent 1px);
+    background-size: 8px 8px;
+    mask-image: linear-gradient(to bottom, black, transparent 65%);
+  }
+
   header {
-    background: var(--navy); color: #fff; padding: 18px 24px;
-    border-bottom: 4px solid var(--accent);
+    position: relative;
+    background: rgba(10, 12, 16, .94);
+    border-bottom: 1px solid var(--border);
+    padding: 22px 28px;
+    box-shadow: 0 8px 30px rgba(0,0,0,.35);
   }
-  header h1 { margin: 0; font: 600 19px/1.3 Georgia, serif; }
-  header p { margin: 4px 0 0; font-size: 13px; color: #9FC5E8; }
-  main { max-width: 900px; margin: 0 auto; padding: 24px 16px 60px; }
-  nav { display: flex; gap: 6px; margin-bottom: 18px; flex-wrap: wrap; }
+
+  .header-inner {
+    max-width: 1050px;
+    margin: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .logo {
+    width: 48px;
+    height: 48px;
+    display: grid;
+    place-items: center;
+    border: 2px solid var(--red);
+    border-radius: 50%;
+    color: white;
+    font-size: 22px;
+    box-shadow: 0 0 20px rgba(225, 6, 0, .2);
+  }
+
+  header h1 {
+    margin: 0;
+    font-size: 21px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+  }
+
+  header p {
+    margin: 3px 0 0;
+    color: var(--muted);
+    font-size: 12px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+
+  .status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--green);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+  }
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 10px var(--green);
+  }
+
+  main {
+    max-width: 1050px;
+    margin: 0 auto;
+    padding: 30px 18px 60px;
+  }
+
+  nav {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
   nav button {
-    border: 1px solid var(--border); background: #fff; color: var(--gray);
-    padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px;
+    border: 1px solid var(--border);
+    background: linear-gradient(180deg, #171b22, #101319);
+    color: var(--muted);
+    padding: 14px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font: inherit;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    transition: .2s ease;
   }
+
+  nav button:hover {
+    border-color: #4a515c;
+    color: white;
+    transform: translateY(-1px);
+  }
+
   nav button[aria-selected="true"] {
-    background: var(--navy); color: #fff; border-color: var(--navy);
+    background: linear-gradient(180deg, #ef1710, #b80400);
+    color: white;
+    border-color: var(--red);
+    box-shadow: 0 7px 24px rgba(225, 6, 0, .2);
   }
+
   section[hidden] { display: none; }
+
   .panneau {
-    background: #fff; border: 1px solid var(--border); border-radius: 10px;
-    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(145deg, rgba(23,28,35,.98), rgba(12,15,20,.98));
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 26px;
+    box-shadow: 0 18px 50px rgba(0,0,0,.25);
   }
-  label { display: block; font-weight: 600; font-size: 13px; margin-bottom: 6px; }
-  textarea, input[type=text], select {
-    width: 100%; padding: 10px; border: 1px solid var(--border);
-    border-radius: 6px; font: inherit; background: #fff;
+
+  .panneau::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, var(--red), transparent);
   }
-  textarea { min-height: 130px; resize: vertical; }
-  .ligne { display: flex; gap: 12px; align-items: flex-end; margin-top: 14px; }
-  .ligne > div { flex: 0 0 180px; }
+
+  .panel-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+
+  .panel-title h2 {
+    margin: 0;
+    font-size: 17px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+
+  .badge {
+    padding: 4px 9px;
+    border: 1px solid #343b45;
+    border-radius: 4px;
+    color: var(--muted);
+    font-size: 10px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+
+  label {
+    display: block;
+    font-weight: 700;
+    font-size: 12px;
+    margin-bottom: 7px;
+    color: #c9ced6;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+
+  textarea,
+  input[type=text],
+  select {
+    width: 100%;
+    padding: 13px 14px;
+    color: white;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    outline: none;
+    font: inherit;
+    background: var(--panel-3);
+    transition: border-color .2s, box-shadow .2s;
+  }
+
+  textarea {
+    min-height: 155px;
+    resize: vertical;
+  }
+
+  textarea:focus,
+  input[type=text]:focus,
+  select:focus {
+    border-color: var(--red);
+    box-shadow: 0 0 0 3px rgba(225,6,0,.1);
+  }
+
+  textarea::placeholder,
+  input::placeholder {
+    color: #5f6772;
+  }
+
+  select {
+    cursor: pointer;
+  }
+
+  option {
+    background: #11151b;
+    color: white;
+  }
+
+  .ligne {
+    display: flex;
+    gap: 14px;
+    align-items: flex-end;
+    margin-top: 16px;
+  }
+
+  .ligne > div {
+    flex: 0 0 210px;
+  }
+
   button.envoyer {
-    background: var(--accent); color: #fff; border: 0; padding: 11px 22px;
-    border-radius: 6px; font-size: 15px; font-weight: 600; cursor: pointer;
     margin-left: auto;
+    min-width: 190px;
+    background: linear-gradient(180deg, #f51c14, #b90500);
+    color: white;
+    border: 1px solid #ff3d36;
+    padding: 12px 22px;
+    border-radius: 7px;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    box-shadow: 0 7px 20px rgba(225,6,0,.2);
+    transition: .2s ease;
   }
-  button.envoyer:disabled { background: var(--gray); cursor: not-allowed; }
+
+  button.envoyer:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 25px rgba(225,6,0,.3);
+  }
+
+  button.envoyer:disabled {
+    background: #3b4048;
+    border-color: #454b54;
+    color: #9da3ad;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
   .sortie {
-    margin-top: 18px; border-top: 1px solid var(--border); padding-top: 16px;
-    min-height: 60px; white-space: pre-wrap;
+    margin-top: 22px;
+    padding: 18px;
+    min-height: 85px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #090c10;
+    white-space: pre-wrap;
   }
-  .attente { color: var(--gray); font-style: italic; }
+
+  .sortie::before {
+    content: "RÉSULTAT DU DIAGNOSTIC";
+    display: block;
+    margin-bottom: 9px;
+    color: var(--red-light);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .1em;
+  }
+
+  .attente {
+    color: var(--muted);
+    font-style: italic;
+  }
+
   .curseur::after {
-    content: "▌"; color: var(--accent); animation: clignote 1s steps(2) infinite;
+    content: "▌";
+    color: var(--red-light);
+    animation: clignote 1s steps(2) infinite;
   }
-  @keyframes clignote { 50% { opacity: 0; } }
+
+  @keyframes clignote {
+    50% { opacity: 0; }
+  }
+
   .erreur {
-    background: #FDECEA; border: 1px solid var(--rouge); color: #7A2E2C;
-    padding: 12px 14px; border-radius: 6px; font-size: 14px;
+    background: rgba(225,6,0,.09);
+    border: 1px solid #8e2521;
+    color: #ffaaa6;
+    padding: 12px 14px;
+    border-radius: 6px;
+    font-size: 14px;
   }
+
   .usage {
-    margin-top: 14px; font-size: 12.5px; color: var(--gray);
-    display: flex; gap: 18px; flex-wrap: wrap;
+    margin-top: 12px;
+    padding: 10px 12px;
+    border-left: 2px solid var(--red);
+    color: var(--muted);
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
   }
-  .usage b { color: var(--navy); }
-  .sources { margin-top: 14px; }
-  .sources h3 { font-size: 12px; text-transform: uppercase; color: var(--accent);
-                letter-spacing: .04em; margin: 0 0 8px; }
+
+  .usage b {
+    color: white;
+  }
+
+  .sources {
+    margin-top: 18px;
+  }
+
+  .sources h3 {
+    font-size: 10px;
+    text-transform: uppercase;
+    color: var(--red-light);
+    letter-spacing: .1em;
+    margin: 0 0 9px;
+  }
+
   .source {
-    display: inline-block; background: var(--card); border: 1px solid var(--border);
-    border-radius: 20px; padding: 4px 12px; font-size: 12.5px; margin: 0 6px 6px 0;
+    display: inline-block;
+    background: #151a21;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 6px 10px;
+    font-size: 11px;
+    margin: 0 6px 6px 0;
   }
-  .source span { color: var(--gray); }
-  footer { text-align: center; font-size: 12px; color: var(--gray); padding: 0 16px 30px; }
-  code { background: var(--card); padding: 1px 5px; border-radius: 3px; font-size: 12.5px; }
+
+  .source span {
+    color: var(--muted);
+    margin-left: 6px;
+  }
+
+  .vehicle-strip {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .metric {
+    background: #0d1116;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 12px 14px;
+  }
+
+  .metric small {
+    display: block;
+    color: var(--muted);
+    font-size: 9px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+  }
+
+  .metric strong {
+    display: block;
+    margin-top: 2px;
+    font-size: 13px;
+  }
+
+  footer {
+    text-align: center;
+    font-size: 11px;
+    color: #68717d;
+    padding: 0 16px 30px;
+    letter-spacing: .04em;
+  }
+
+  code {
+    color: #aeb5bf;
+    background: #151a21;
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+
+  @media (max-width: 650px) {
+    header { padding: 18px; }
+
+    .header-inner {
+      align-items: flex-start;
+    }
+
+    .status { display: none; }
+
+    main { padding: 20px 12px 45px; }
+
+    nav,
+    .vehicle-strip {
+      grid-template-columns: 1fr;
+    }
+
+    .panneau {
+      padding: 20px 16px;
+    }
+
+    .ligne {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .ligne > div {
+      flex: auto;
+    }
+
+    button.envoyer {
+      width: 100%;
+      margin-left: 0;
+    }
+  }
 </style>
 </head>
+
 <body>
+
 <header>
-  <h1>Assistant support</h1>
-  <p>Application fil rouge : ce front est fourni. Gardez-le, modifiez-le ou remplacez-le.</p>
+  <div class="header-inner">
+    <div class="brand">
+      <div class="logo">A</div>
+      <div>
+        <h1>AutoAssist</h1>
+        <p>Centre intelligent de support automobile</p>
+      </div>
+    </div>
+
+    <div class="status">
+      <span class="status-dot"></span>
+      Système opérationnel
+    </div>
+  </div>
 </header>
 
 <main>
+
+  <div class="vehicle-strip">
+    <div class="metric">
+      <small>Module actif</small>
+      <strong>DIAGNOSTIC IA</strong>
+    </div>
+    <div class="metric">
+      <small>Connexion</small>
+      <strong>API SUPPORT · OK</strong>
+    </div>
+    <div class="metric">
+      <small>Mode</small>
+      <strong>STREAMING SSE</strong>
+    </div>
+  </div>
+
   <nav role="tablist">
-    <button role="tab" data-onglet="resumer" aria-selected="true">Résumer &middot; S9</button>
-    <button role="tab" data-onglet="assistant" aria-selected="false">Assistant &middot; S10</button>
-    <button role="tab" data-onglet="documents" aria-selected="false">Documents &middot; S13</button>
+    <button role="tab" data-onglet="resumer" aria-selected="true">
+      Diagnostic · S9
+    </button>
+    <button role="tab" data-onglet="assistant" aria-selected="false">
+      Commandes · S10
+    </button>
+    <button role="tab" data-onglet="documents" aria-selected="false">
+      Documentation · S13
+    </button>
   </nav>
 
   <section id="panneau-resumer" class="panneau">
-    <label for="texte">Texte du ticket à résumer</label>
-    <textarea id="texte" placeholder="Collez ici le message d'un client."></textarea>
+
+    <div class="panel-title">
+      <h2>Analyse du problème véhicule</h2>
+      <span class="badge">MODULE S9</span>
+    </div>
+
+    <label for="texte">Message du client</label>
+
+    <textarea id="texte"
+      placeholder="Ex. Bonjour, ma voiture ne démarre plus depuis ce matin. Le démarreur fonctionne mais le moteur ne se lance pas..."></textarea>
+
     <div class="ligne">
       <div>
-        <label for="ton">Ton du résumé</label>
+        <label for="ton">Style du rapport</label>
         <select id="ton">
-          <option value="neutre">neutre</option>
-          <option value="direct">direct</option>
-        </select>
+  <option value="neutre">Neutre — rapport atelier</option>
+  <option value="direct">Direct — diagnostic rapide</option>
+  <option value="humour">Humour — mécano sympa</option>
+  <option value="triste">Triste — panne regrettable</option>
+  <option value="colere">Colère — situation frustrante</option>
+</select>
       </div>
-      <button class="envoyer" data-route="/api/resumer">Résumer</button>
+
+      <button class="envoyer" data-route="/api/resumer">
+        ▶ Lancer le diagnostic
+      </button>
     </div>
+
     <div class="sortie" id="sortie-resumer"></div>
     <div class="usage" id="usage-resumer"></div>
+
   </section>
 
   <section id="panneau-assistant" class="panneau" hidden>
-    <label for="question-assistant">Question sur une commande</label>
-    <input type="text" id="question-assistant"
-           placeholder="Où en est la commande CMD-2024-118 ?">
-    <div class="ligne">
-      <button class="envoyer" data-route="/api/assistant">Demander</button>
+
+    <div class="panel-title">
+      <h2>Suivi des commandes</h2>
+      <span class="badge">MODULE S10</span>
     </div>
+
+    <label for="question-assistant">Référence ou question client</label>
+
+    <input type="text" id="question-assistant"
+      placeholder="Ex. Où en est la commande CMD-2024-118 ?">
+
+    <div class="ligne">
+      <button class="envoyer" data-route="/api/assistant">
+        ▶ Interroger le système
+      </button>
+    </div>
+
     <div class="sortie" id="sortie-assistant"></div>
     <div class="usage" id="usage-assistant"></div>
+
   </section>
 
   <section id="panneau-documents" class="panneau" hidden>
-    <label for="question-documents">Question sur la documentation</label>
-    <input type="text" id="question-documents"
-           placeholder="Comment demander un remboursement ?">
-    <div class="ligne">
-      <button class="envoyer" data-route="/api/documents">Chercher</button>
+
+    <div class="panel-title">
+      <h2>Base documentaire atelier</h2>
+      <span class="badge">MODULE S13</span>
     </div>
+
+    <label for="question-documents">Question technique</label>
+
+    <input type="text" id="question-documents"
+      placeholder="Ex. Comment demander un remboursement pour une pièce ?">
+
+    <div class="ligne">
+      <button class="envoyer" data-route="/api/documents">
+        ▶ Rechercher
+      </button>
+    </div>
+
     <div class="sources" id="sources-documents"></div>
     <div class="sortie" id="sortie-documents"></div>
     <div class="usage" id="usage-documents"></div>
+
   </section>
+
 </main>
 
 <footer>
-  Les Fondamentaux de l'IA &middot; 3IW &middot; ESGI
-  &mdash; contrat de route : <code>app/CONTRAT.md</code>
+  AutoAssist · Les Fondamentaux de l'IA · 3IW · ESGI
+  — contrat : <code>app/CONTRAT.md</code>
 </footer>
 
 <script>
-// Ce fichier est fourni. Vous pouvez le garder, le modifier ou le remplacer,
-// a une condition : n'appeler QUE les routes de votre serveur, jamais le modele.
+// Le front communique uniquement avec les routes du serveur.
+// Aucun appel direct au modèle n'est effectué ici.
 
 const ONGLETS = ["resumer", "assistant", "documents"];
 
@@ -162,8 +619,11 @@ function corpsDeLaRequete(route) {
       ton: document.getElementById('ton').value,
     };
   }
+
   const cle = route === '/api/assistant' ? 'assistant' : 'documents';
-  return { question: document.getElementById('question-' + cle).value };
+  return {
+    question: document.getElementById('question-' + cle).value
+  };
 }
 
 function nomDuPanneau(route) {
@@ -179,26 +639,32 @@ async function envoyer(bouton) {
 
   bouton.disabled = true;
   sortie.className = 'sortie attente';
-  sortie.textContent = 'Le modèle réfléchit...';
+  sortie.textContent = 'Connexion au module de diagnostic...';
   usage.textContent = '';
+
   if (sources) sources.innerHTML = '';
 
   const debut = performance.now();
+
   try {
     const reponse = await fetch(route, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json'
+      },
       body: JSON.stringify(corpsDeLaRequete(route)),
     });
 
-    // Une erreur arrive en JSON classique, jamais en SSE : voir le contrat.
     if (!reponse.ok) {
       const details = await reponse.json().catch(() => ({}));
-      throw new Error(details.erreur || `Le serveur a répondu ${reponse.status}.`);
+      throw new Error(
+        details.erreur || `Le serveur a répondu ${reponse.status}.`
+      );
     }
 
     sortie.className = 'sortie curseur';
     sortie.textContent = '';
+
     let premierFragment = null;
 
     const lecteur = reponse.body.getReader();
@@ -207,50 +673,80 @@ async function envoyer(bouton) {
 
     for (;;) {
       const { done, value } = await lecteur.read();
+
       if (done) break;
+
       tampon += decodeur.decode(value, { stream: true });
+
       const morceaux = tampon.split('\n\n');
       tampon = morceaux.pop();
+
       for (const morceau of morceaux) {
-        const ligne = morceau.split('\n').find((l) => l.startsWith('data: '));
+        const ligne = morceau
+          .split('\n')
+          .find((l) => l.startsWith('data: '));
+
         if (!ligne) continue;
+
         const charge = ligne.slice(6).trim();
+
         if (!charge || charge === '[DONE]') continue;
+
         const evenement = JSON.parse(charge);
 
         if (evenement.sources && sources) {
-          sources.innerHTML = '<h3>Sources retenues</h3>' + evenement.sources
-            .map((s) => `<span class="source">${s.titre}
-                         <span>${Number(s.score).toFixed(2)}</span></span>`)
-            .join('');
+          sources.innerHTML =
+            '<h3>Sources retenues</h3>' +
+            evenement.sources
+              .map((s) =>
+                `<span class="source">${s.titre}
+                  <span>${Number(s.score).toFixed(2)}</span>
+                </span>`
+              )
+              .join('');
         }
+
         if (evenement.delta) {
-          if (premierFragment === null) premierFragment = performance.now() - debut;
+          if (premierFragment === null) {
+            premierFragment = performance.now() - debut;
+          }
+
           sortie.textContent += evenement.delta;
         }
+
         if (evenement.done) {
           const u = evenement.usage || {};
+
           usage.innerHTML = [
             `entrée <b>${u.entree ?? '?'}</b> tokens`,
             `sortie <b>${u.sortie ?? '?'}</b> tokens`,
             `serveur <b>${u.ms ?? '?'}</b> ms`,
-            `premier fragment <b>${premierFragment ? Math.round(premierFragment) : '?'}</b> ms`,
+            `premier fragment <b>${
+              premierFragment ? Math.round(premierFragment) : '?'
+            }</b> ms`,
           ].join('');
         }
       }
     }
+
     sortie.className = 'sortie';
+
     if (!sortie.textContent.trim()) {
       sortie.className = 'sortie attente';
-      sortie.textContent = 'Le serveur a répondu, mais sans aucun fragment.';
+      sortie.textContent =
+        'Le serveur a répondu, mais aucun diagnostic n’a été généré.';
     }
+
   } catch (erreur) {
     sortie.className = 'sortie';
     sortie.innerHTML = '';
+
     const boite = document.createElement('div');
     boite.className = 'erreur';
     boite.textContent = erreur.message;
+
     sortie.appendChild(boite);
+
   } finally {
     bouton.disabled = false;
   }
@@ -260,5 +756,6 @@ document.querySelectorAll('button.envoyer').forEach((bouton) => {
   bouton.addEventListener('click', () => envoyer(bouton));
 });
 </script>
+
 </body>
 </html>
