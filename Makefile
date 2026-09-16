@@ -25,7 +25,8 @@ BASE_URL ?= http://localhost:$(PORT)
 
 .PHONY: help uv-install ollama-install outils outils-check install \
 	ollama-check ollama-pull ollama-pull-tiny ollama-pull-plus ollama-list ollama-run ollama-run-tiny ollama-run-plus ollama-run-verbose ollama-ps ollama-stop \
-	setup-check setup-check-node liberer-port app app-node front-streamlit conformite
+	setup-check setup-check-node prompt prompt-node banc banc-node \
+	liberer-port app app-node front-streamlit conformite
 
 help:  ## Affiche cette aide
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
@@ -131,7 +132,29 @@ setup-check-node: outils-check  ## Diagnostic complet du poste, voie JavaScript
 		|| (echo "Node 20+ est requis pour la voie JavaScript : https://nodejs.org"; exit 1)
 	node tp/00_setup/check.mjs
 
-# ----- 5. Travailler sur l'application -----
+# ----- 5. Ateliers des seances 5 et 11 -----
+
+# Atelier de la seance 5 : on ne modifie que CONSIGNE, en haut du fichier,
+# et on relance apres chaque changement pour voir le score bouger.
+prompt:  ## Atelier prompt de la seance 5, voie Python
+	@MODEL_BASE=$(MODEL_BASE) OLLAMA_BASE_URL=$(OLLAMA_HOST) \
+		$(UV) run python tp/05_prompt/evaluer.py
+
+prompt-node:  ## Atelier prompt de la seance 5, voie JavaScript
+	@MODEL_BASE=$(MODEL_BASE) OLLAMA_BASE_URL=$(OLLAMA_HOST) \
+		node tp/05_prompt/evaluer.mjs
+
+# Banc d'essai de la seance 11 : le prompt est fige, ce sont les modeles qui
+# varient. Surchargeable : make banc MODELES="qwen2.5:3b llama3.2:1b"
+MODELES ?= $(MODEL_BASE) $(MODEL_TINY)
+
+banc:  ## Banc d'essai de la seance 11, voie Python
+	@OLLAMA_BASE_URL=$(OLLAMA_HOST) $(UV) run python tp/11_banc/banc.py $(MODELES)
+
+banc-node:  ## Banc d'essai de la seance 11, voie JavaScript
+	@OLLAMA_BASE_URL=$(OLLAMA_HOST) node tp/11_banc/banc.mjs $(MODELES)
+
+# ----- 6. Travailler sur l'application -----
 
 # Tue ce qui ecoute sur $(PORT) : SIGTERM, puis SIGKILL si le port tient encore.
 # Ne touche jamais au port d'Ollama. Autre port : make liberer-port PORT=4000
