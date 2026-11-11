@@ -1,0 +1,8 @@
+{
+  "name": "aeroport-emeraude",
+  "private": true,
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node tests/evaluer.js"
+  }
+}
